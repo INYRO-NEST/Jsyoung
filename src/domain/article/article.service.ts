@@ -1,16 +1,23 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ArticleEntity } from "src/entities/article.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class ArticleService{
-    constructor() {}
+    constructor(
+        @InjectRepository(ArticleEntity)
+        private readonly articleRepository: Repository<ArticleEntity>,
+    ) {}
 
-    async getDataPage() {
-        return { article:{
-            title : "나는 신이다",
-            content : "게시글 내용입니다.",
-            userId : 10
-        },
-    };
+    async createArticle(title: string, content: string, userId: string) {
+        const article = await this.articleRepository.save({
+            content: content,
+            title: title,
+            userId: userId
+        });
+
+        return article;
     }
 
 }

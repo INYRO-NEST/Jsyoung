@@ -1,13 +1,26 @@
-import { Controller, Get, Inject } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { JwtGuard } from "src/auth/guards/jwt.guard";
+import { User } from "src/decorators/user.decorator";
 import { ArticleService } from "./article.service";
 
-@Controller('article')
+@Controller('articles')
 export class ArticleController{
     constructor(private readonly articleService: ArticleService) {}
 
-    @Get('/article')
-    async getDataPage() {
-        const res = await this.articleService.getDataPage(); // await 없으면 promise 담김 : await 걸어야함
-        return res.article;
-    }
+    @UseGuards(JwtGuard)
+    @Post()
+    async createArticle(@Body() body, @User() user) {
+
+        const title = body.title;
+        const content = body.content;
+        const userId = user.id;
+
+        const article = await this.articleService.createArticle(
+            title,
+            content,
+            userId,
+        );
+
+        return article;
+    }  
 }
